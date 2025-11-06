@@ -64,6 +64,9 @@
     <None Include="resources\AppCursor.cur">
       <Filter>Arquivos de Recurso</Filter>
     </None>
+    <None Include="README.md">
+      <Filter>Arquivos de Recurso</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\AppIcon.ico">
