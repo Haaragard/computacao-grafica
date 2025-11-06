@@ -3,6 +3,8 @@
 Window* Engine::window = nullptr;			// janela da aplicação
 Input* Engine::input = nullptr;				// dispositivos de entrada
 App* Engine::app = nullptr;					// apontador da aplicação
+float Engine::frameTime = 0.0f;				// tempo do quadro atual
+Timer Engine::timer;						// medidor de tempo
 
 Engine::Engine()
 {
@@ -35,6 +37,9 @@ int Engine::Start(App* application)
 
 int Engine::Loop()
 {
+	// inicia contagem de tempo
+	timer.Start();
+
 	// mensagens do Windows
 	MSG msg = { 0 };
 
@@ -52,6 +57,9 @@ int Engine::Loop()
 		}
 		else
 		{
+			// calcula o tempo do quadro
+			frameTime = FrameTime();
+
 			// atualização da aplicação
 			app->Update();
 
@@ -68,6 +76,44 @@ int Engine::Loop()
 
 	// encerra aplicação
 	return int(msg.wParam);
+}
+
+float Engine::FrameTime()
+{
+#ifdef _DEBUG
+	static float totalTime = 0.0f;			// tempo total transcorrido
+	static uint frameCount = 0;				// contador de frames transcorridos
+#endif
+
+	// tempo de frame atual
+	frameTime = timer.Reset();
+
+#ifdef _DEBUG
+	// tempo acumulado dos frames
+	totalTime += frameTime;
+
+	// incrementa contador de frames
+	frameCount++;
+
+	// a cada 1000ms (1 segundo) atualiza indicador de FPS na janela
+	if (totalTime >= 1.0f)
+	{
+		stringstream text;				// fluxo de texto para mensagens
+		text << std::fixed;				// sempre mostra a parte fracionária
+		text.precision(3);				// trás casas depois da vírgula
+
+		text << window->Title().c_str() << "   "
+			<< "FPS: " << frameCount << "   "
+			<< "Frame Time: " << frameTime * 1000 << " (ms)";
+
+		SetWindowText(window->Id(), text.str().c_str());
+
+		frameCount = 0;
+		totalTime -= 1.0f;
+	}
+#endif
+
+	return frameTime;
 }
 
 LRESULT CALLBACK Engine::EngineProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
