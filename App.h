@@ -7,7 +7,7 @@ class App
 {
 protected:
 	static Window* window;				// janela
-	static Input* input;
+	static Input* input;				// entrada
 
 public:
 	App();								// construtor
