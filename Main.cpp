@@ -4,8 +4,19 @@ using std::stringstream;
 
 class WinApp : public App
 {
+private:
+	Timer frameTime;
+
 	bool drawMode = { false };
 	bool clickPressed = { false };
+
+	int lineSize = { 0 };
+	int linePosX = { 0 };
+	int linePosY = { 0 };
+
+	bool lineGoToRight = { false };
+	bool lineGoToTop = { false };
+
 public:
 	void Init();
 	void Update();
@@ -15,6 +26,8 @@ public:
 
 void WinApp::Init()
 {
+	linePosX = window->CenterX();
+	linePosY = window->CenterY();
 }
 
 void WinApp::Update()
@@ -35,8 +48,45 @@ void WinApp::Update()
 		drawMode = !drawMode;
 		if (!drawMode) {
 			window->Clear();
-}
+		}
+		else {
+			linePosX = 0;
+			linePosY = 0;
+		}
 	}
+
+	if (!drawMode) {
+		if (lineGoToRight) {
+			linePosX += int(100.f * Engine::frameTime);
+		}
+		else
+		{
+			linePosX -= int(100.f * Engine::frameTime);
+		}
+		if (linePosX + lineSize >= window->Width()) {
+			lineGoToRight = false;
+		}
+		else if (linePosX <= 0)
+		{
+			lineGoToRight = true;
+		}
+
+		if (lineGoToTop) {
+			linePosY += int(100.f * Engine::frameTime);
+		}
+		else
+		{
+			linePosY -= int(100.f * Engine::frameTime);
+		}
+		if (linePosY + lineSize >= window->Height()) {
+			lineGoToTop = false;
+		}
+		else if (linePosY <= 0)
+		{
+			lineGoToTop = true;
+		}
+	}
+}
 
 void WinApp::Draw()
 {
@@ -44,6 +94,25 @@ void WinApp::Draw()
 		if (clickPressed)
 			window->DrawPixels(input->MouseX(), input->MouseY(), RGB(0, 0, 0));
 	}
+	else
+	{
+		HDC hdc = GetDC(window->Id());
+		HPEN hPen = CreatePen(PS_SOLID, 2, RGB(0, 0, 0));
+		HPEN old = (HPEN)SelectObject(hdc, hPen);
+
+		MoveToEx(hdc, linePosX, linePosY, NULL);
+
+		int frameTimeLineSize = lineSize + int(100.f * Engine::frameTime);
+
+		int endPosX = (lineGoToRight) ? linePosX + frameTimeLineSize : linePosX - frameTimeLineSize;
+		int endPosY = (lineGoToTop) ? linePosY + frameTimeLineSize : linePosY - frameTimeLineSize;
+		LineTo(hdc, endPosX, endPosY);
+
+		SelectObject(hdc, old);
+		DeleteObject(hPen);
+		ReleaseDC(window->Id(), hdc);
+	}
+
 }
 
 void WinApp::Finalize()
