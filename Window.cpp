@@ -139,6 +139,7 @@ void Window::DrawPixels(int posX, int posY, COLORREF color)
         posY - 1,
         color
     );
+    ReleaseDC(windowId, hdc);
 }
 
 // -------------------------------------------------------------------------------
