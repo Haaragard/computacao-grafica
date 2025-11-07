@@ -4,6 +4,8 @@ using std::stringstream;
 
 class WinApp : public App
 {
+	bool drawMode = { false };
+	bool clickPressed = { false };
 public:
 	void Init();
 	void Update();
@@ -20,10 +22,28 @@ void WinApp::Update()
 	// sai com o pressionamento da tecla ESC
 	if (input->KeyPress(VK_ESCAPE))
 		window->Close();
+
+	if (input->KeyDown(VK_LBUTTON))
+		clickPressed = true;
+	if (input->KeyUp(VK_LBUTTON))
+		clickPressed = false;
+
+	if (input->KeyPress('R'))
+		window->Clear();
+
+	if (input->KeyPress('D')) {
+		drawMode = !drawMode;
+		if (!drawMode) {
+			window->Clear();
 }
+	}
 
 void WinApp::Draw()
 {
+	if (drawMode) {
+		if (clickPressed)
+			window->DrawPixels(input->MouseX(), input->MouseY(), RGB(0, 0, 0));
+	}
 }
 
 void WinApp::Finalize()
