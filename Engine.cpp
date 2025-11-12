@@ -3,7 +3,8 @@
 Window* Engine::window = nullptr;			// janela da aplicação
 Input* Engine::input = nullptr;				// dispositivos de entrada
 App* Engine::app = nullptr;					// apontador da aplicação
-float Engine::frameTime = 0.0f;				// tempo do quadro atual
+double Engine::frameTime = 0.0;				// tempo do quadro atual
+bool Engine::paused = false;				// estado do motor
 Timer Engine::timer;						// medidor de tempo
 
 Engine::Engine()
@@ -31,8 +32,16 @@ int Engine::Start(App* application)
 	// altera a window procedure da janela ativa para EngineProc
 	SetWindowLongPtr(window->Id(), GWLP_WNDPROC, (LONG_PTR)EngineProc);
 
-	// retorna resultado da execução
-	return Loop();
+	// ajusta a resolução do Sleep para 1 milisegundo
+	// requer uso da biblioteca winmm.lib
+	timeBeginPeriod(1);
+
+	int exitCode = Loop();
+
+	// volta a resolução do Sleep ao valor original
+	timeEndPeriod(1);
+
+	return exitCode;
 }
 
 int Engine::Loop()
@@ -57,17 +66,29 @@ int Engine::Loop()
 		}
 		else
 		{
-			// calcula o tempo do quadro
-			frameTime = FrameTime();
+			// Pause/Resume Jogo
+			if (input->KeyPress(VK_PAUSE)) {
+				if (paused)
+					Resume();
+				else
+					Pause();
+			}
 
-			// atualização da aplicação
-			app->Update();
+			if (!paused)
+			{
+				// calcula o tempo do quadro
+				frameTime = FrameTime();
 
-			// desenho da aplicação
-			app->Draw();
+				// atualização da aplicação
+				app->Update();
 
-			// aguarda 16 milissegundos ou a próxima interação com a janela
-			MsgWaitForMultipleObjects(0, NULL, FALSE, 10, QS_ALLINPUT);
+				// desenho da aplicação
+				app->Draw();
+			}
+			else
+			{
+				app->OnPause();
+			}
 		}
 	} while (msg.message != WM_QUIT);
 
@@ -78,10 +99,10 @@ int Engine::Loop()
 	return int(msg.wParam);
 }
 
-float Engine::FrameTime()
+double Engine::FrameTime()
 {
 #ifdef _DEBUG
-	static float totalTime = 0.0f;			// tempo total transcorrido
+	static double totalTime = 0.0f;			// tempo total transcorrido
 	static uint frameCount = 0;				// contador de frames transcorridos
 #endif
 
@@ -96,7 +117,7 @@ float Engine::FrameTime()
 	frameCount++;
 
 	// a cada 1000ms (1 segundo) atualiza indicador de FPS na janela
-	if (totalTime >= 1.0f)
+	if (totalTime >= 1.0)
 	{
 		stringstream text;				// fluxo de texto para mensagens
 		text << std::fixed;				// sempre mostra a parte fracionária

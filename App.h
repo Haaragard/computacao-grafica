@@ -6,19 +6,20 @@
 class App
 {
 protected:
-	static Window* window;				// janela
-	static Input* input;				// entrada
+	static Window*& window;					// janela
+	static Input*& input;					// entrada
+	static double& frameTime;				// tempo do último quadro
 
 public:
-	App();								// construtor
-	virtual ~App();						// destrutor
+	App();									// construtor
+	virtual ~App();							// destrutor
 
 	// Estes métodos são puramente virtuais, isto é,
 	// devem ser implementados em todas as classes
 	// derivadas de App.
-	virtual void Init() = 0;			// inicialização
-	virtual void Update() = 0;
-	virtual void Finalize() = 0;
+	virtual void Init() = 0;				// inicialização
+	virtual void Update() = 0;				// atualização
+	virtual void Finalize() = 0;			// finalização
 
 	// Estes métodos possuem uma implementação vazia por padrão e
 	// apenas um deles deve ser sobrescrito na classe derivada:
@@ -26,7 +27,8 @@ public:
 	// - Display é chamado apenas uma vez no início da aplicação
 	// e deve ser chamado manualmente em Update toda vez que a
 	// tela precisar ser redesenhada.
-	virtual void Draw() {};				// desenho
-	virtual void Display() {};			// exibição
+	virtual void Draw() {};					// desenho
+	virtual void Display() {};				// exibição
+	virtual void OnPause() { Sleep(10); }	// em pausa
 };
 

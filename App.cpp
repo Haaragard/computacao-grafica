@@ -1,9 +1,9 @@
 #include "App.h"
-
 #include "Engine.h"
 
-Window* App::window = nullptr;			// ponteiro para a janela
-Input* App::input = nullptr;			// ponteiro para a entrada
+Window*& App::window = Engine::window;					// ponteiro para a janela
+Input*& App::input = Engine::input;					// ponteiro para a entrada
+double& App::frameTime = Engine::frameTime;		// tempo do último quadro
 
 App::App()
 {

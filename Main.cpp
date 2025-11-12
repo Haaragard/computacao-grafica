@@ -57,11 +57,11 @@ void WinApp::Update()
 
 	if (!drawMode) {
 		if (lineGoToRight) {
-			linePosX += int(100.f * Engine::frameTime);
+			linePosX += 1;
 		}
 		else
 		{
-			linePosX -= int(100.f * Engine::frameTime);
+			linePosX -= 1;
 		}
 		if (linePosX + lineSize >= window->Width()) {
 			lineGoToRight = false;
@@ -72,11 +72,11 @@ void WinApp::Update()
 		}
 
 		if (lineGoToTop) {
-			linePosY += int(100.f * Engine::frameTime);
+			linePosY += 1;
 		}
 		else
 		{
-			linePosY -= int(100.f * Engine::frameTime);
+			linePosY -= 1;
 		}
 		if (linePosY + lineSize >= window->Height()) {
 			lineGoToTop = false;
@@ -102,7 +102,7 @@ void WinApp::Draw()
 
 		MoveToEx(hdc, linePosX, linePosY, NULL);
 
-		int frameTimeLineSize = lineSize + int(100.f * Engine::frameTime);
+		int frameTimeLineSize = lineSize + 1;
 
 		int endPosX = (lineGoToRight) ? linePosX + frameTimeLineSize : linePosX - frameTimeLineSize;
 		int endPosY = (lineGoToTop) ? linePosY + frameTimeLineSize : linePosY - frameTimeLineSize;
@@ -130,6 +130,11 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	engine->window->Title("Aplicação Windows");
 	engine->window->Icon(IDI_ICON);
 	engine->window->Cursor(IDC_CURSOR);
+
+	// aplicação pausa/resume ao perder/ganhar o foco
+	engine->window->LostFocus(Engine::Pause);
+	engine->window->InFocus(Engine::Resume);
+
 
 	// cria e executa a aplicação
 	int exitCode = engine->Start(new WinApp());
